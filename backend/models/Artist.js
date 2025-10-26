@@ -2,12 +2,12 @@ const pool = require('../config/database');
 
 class Artist {
   static async create(artistData) {
-    const { name, bio, location, formed_year } = artistData;
+    const { name, bio, location, formed_year, label_id } = artistData;
     const result = await pool.query(
-      `INSERT INTO artists (name, bio, location, formed_year) 
-       VALUES ($1, $2, $3, $4) 
+      `INSERT INTO artists (name, bio, location, formed_year, label_id) 
+       VALUES ($1, $2, $3, $4, $5) 
        RETURNING *`,
-      [name, bio, location, formed_year]
+      [name, bio, location, formed_year, label_id]
     );
     return result.rows[0];
   }
@@ -16,12 +16,14 @@ class Artist {
     const offset = (page - 1) * limit;
     const result = await pool.query(
       `SELECT a.*, 
+      l.name as label_name
               AVG(r.rating) as avg_rating,
               COUNT(r.rating) as rating_count
        FROM artists a
+       LEFT JOIN label l ON a.label_id = l.id
        LEFT JOIN albums al ON a.id = al.artist_id
        LEFT JOIN ratings r ON al.id = r.album_id
-       GROUP BY a.id
+       GROUP BY a.id, l.name
        ORDER BY a.name
        LIMIT $1 OFFSET $2`,
       [limit, offset]
@@ -32,13 +34,15 @@ class Artist {
   static async findById(id) {
     const result = await pool.query(
       `SELECT a.*, 
+      l.name as label_name
               AVG(r.rating) as avg_rating,
               COUNT(r.rating) as rating_count
        FROM artists a
+       LEFT JOIN label l ON a.label_id = l.id
        LEFT JOIN albums al ON a.id = al.artist_id
        LEFT JOIN ratings r ON al.id = r.album_id
        WHERE a.id = $1
-       GROUP BY a.id`,
+       GROUP BY a.id, l.name`,
       [id]
     );
     return result.rows[0];

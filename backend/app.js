@@ -5,6 +5,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const artistRoutes = require('./routes/artists');
 const albumRoutes = require('./routes/albums');
+const labelRoutes = require('./routes/labels');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/artists', artistRoutes);
 app.use('/api/albums', albumRoutes);
+app.use('/api/labels', labelRoutes);
 
 // Health check to see if the server is up
 app.get('/api/health', (req, res) => {

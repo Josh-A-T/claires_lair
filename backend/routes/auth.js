@@ -12,7 +12,6 @@ const { validateRegistration, validateLogin } = require('../middleware/validatio
 
 const router = express.Router();
 
-// Register
 router.post('/register', validateRegistration, async (req, res) => {
   try {
     const { username, password } = req.body;
