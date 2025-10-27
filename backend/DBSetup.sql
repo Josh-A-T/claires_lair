@@ -75,6 +75,7 @@ CREATE TABLE lists (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     is_public BOOLEAN DEFAULT true,
+    share_id UUID UNIQUE DEFAULT gen_random_uuid(),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -99,5 +100,9 @@ CREATE INDEX idx_ratings_user_id ON ratings(user_id);
 CREATE INDEX idx_ratings_album_id ON ratings(album_id);
 CREATE INDEX idx_artist_genres_genre ON artist_genres(genre);
 CREATE INDEX idx_lists_user_id ON lists(user_id);
+CREATE INDEX idx_lists_share_id ON lists(share_id);
+CREATE INDEX idx_lists_is_public ON lists(is_public);
+CREATE INDEX idx_list_items_list_id ON list_items(list_id);
+CREATE INDEX idx_list_items_type ON list_items(item_type);
 
 SELECT 'Database setup completed successfully!' as message;

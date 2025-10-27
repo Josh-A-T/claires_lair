@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const artistRoutes = require('./routes/artists');
 const albumRoutes = require('./routes/albums');
 const labelRoutes = require('./routes/labels');
+const listRoutes = require('./routes/lists');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/artists', artistRoutes);
 app.use('/api/albums', albumRoutes);
 app.use('/api/labels', labelRoutes);
+app.use('/api/lists', listRoutes);
 
 // Health check to see if the server is up
 app.get('/api/health', (req, res) => {
