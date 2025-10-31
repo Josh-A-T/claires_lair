@@ -12,7 +12,36 @@ A PERN stack web application for discovering, rating, and cataloging goth and go
 - **Public Profiles**: Share your ratings and lists with others
 
 ---
+## Installing
+```
+cd backend
+npm install
+```
+Create a .env file in the backend directory and fill in your config
+```
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=music_db
+DB_PASSWORD=your_password_here
+DB_PORT=5432
+JWT_SECRET=your_secret_jwt_key_here_make_it_long_and_random
+PORT=5000
+```
+Connect to the database and run the sql schema
+```
+-- Connect to PostgreSQL as admin
+psql -U postgres
 
+-- Create the database
+CREATE DATABASE music_db;
+
+-- Connect 
+\c music_db
+
+-- Run DBSetup script to create all fields and tables
+\i /utils/DBSetup.sql
+```
+---
 
 ### Backend Structure
 ```
@@ -20,30 +49,30 @@ ClairesLair/
 ├── backend/
 │   ├── config/
 │   │   └── database.js
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── artistController.js
-│   │   ├── albumController.js
-│   │   ├── ratingController.js
-│   │   └── listController.js
+│   ├── images/                    
+│   │   ├── (Images not implemented yet)
 │   ├── middleware/
 │   │   ├── auth.js
 │   │   └── validation.js
+│   ├── models/
+│   │   ├── Album.js
+│   │   ├── Artist.js
+│   │   ├── Label.js
+│   │   ├── List.js
+│   │   ├── Ratings.js
+│   │   └── User.js
 │   ├── routes/
-│   │   ├── auth.js
-│   │   ├── artists.js
 │   │   ├── albums.js
-│   │   ├── ratings.js
-│   │   └── lists.js
+│   │   ├── artists.js
+│   │   ├── auth.js
+|   |   ├── labels.js
+│   │   ├── lists.js
+│   │   └── ratings.js
+│   ├── utils/
+│   │   ├── DBSetup.sql
+│   ├── .env
 │   ├── app.js
 │   └── package.json
-│   ├── images/                    
-│   │   ├── artists/
-│   │   │   ├── images/
-│   │   │   └── banners/
-│   │   ├── albums/
-│   │   │   ├── covers/
-│   │   │   └── backs/
 └── frontend/
     └── (React app coming soon)
 ```
@@ -51,25 +80,24 @@ ClairesLair/
 
 ### 🔌 API End Points
 
-#### Auth Routes (/api/auth)
+#### ✋ Auth Routes (/api/auth)
 ```
 POST /register - Create new user account
 POST /login - User login
 GET /me - Get current user info
-PUT /profile - Update user profile
 ```
 
-#### Artist Routes (/api/artist)
+#### 👥 Artist Routes (/api/artist)
 ```
 GET / - Get all artists (with pagination/filtering)
 POST / - Create new artist (admin only)
 GET /:id - Get artist by ID
 PUT /:id - Update artist (admin only)
 GET /:id/albums - Get artist's albums
-GET /search?q= - Search artists
+GET /- Search artists
 ```
 
-#### Album Routes (/api/album)
+#### 💿 Album Routes (/api/album)
 ```
 GET / - Get all albums (with pagination/filtering)
 POST / - Create new album (admin only)
@@ -78,7 +106,7 @@ PUT /:id - Update album (admin only)
 GET /search?q= - Search albums
 ```
 
-#### Rating Routes (/api/ratings)
+#### ⭐ Rating Routes (/api/ratings)
 ```
 GET /user/:userId - Get user's ratings
 POST /album/:albumId - Rate an album
@@ -87,14 +115,18 @@ DELETE /album/:albumId - Remove rating
 GET /album/:albumId - Get user's rating for specific album
 ```
 
-#### List Routes (/api/lists)
+#### 📓 List Routes (/api/lists)
 ```
-GET / - Get public lists
-GET /user/:userId - Get user's lists
+GET /my-lists -Private, shows all lists created by the user
+GET /public
+GET /public/search
 POST / - Create new list
-GET /:slug - Get list by slug
-PUT /:id - Update list
-DELETE /:id - Delete list
-POST /:id/items - Add item to list
-DELETE /:id/items/:itemId - Remove item from list
+GET /:id - Show list by ID
+GET /share/:shareID - Get public lists by ID, public
+PUT /:id - update list, user level
+DELETE /:id - delete list by ID, user level
+GET /:id/items - get items on list
+POST /:id/items - add items to list
+DELETE /:id/items/:itemId - Delete item from list
+GET /:id/items/check - Check for duplicates
 ```
