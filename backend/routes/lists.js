@@ -1,18 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////
 // Endpoint routes for user generated lists. Can be either public or private. Checks to ensure duplicates arent added to the same list
 // Assigns a UUID to each list to ensure uniqueness 
-// GET /my-lists (Private, shows all lists created by the user)
-// GET /public
-// GET /public/search
-// POST / (Create new list)
-// GET /:id (Show list by ID)
-// GET /share/:shareID (Get public lists by ID, public)
-// PUT /:id (update list, user level)
-// DELETE /:id (delete list by ID, user level)
-// GET /:id/items (get items on list)
-// POST /:id/items (add items to list)
-// DELETE /:id/items/:itemId (Delete item from list)
-// GET /:id/items/check (Check for duplicates)
+// GET /my-lists - shows all lists created by the user, user
+// GET /public - Shows public lists, public
+// GET /public/search - Search public lists, public
+// POST / - Create new list, user
+// GET /:id - Show list by ID, user
+// GET /share/:shareID - Get public lists by ID, public
+// PUT /:id - update list by ID, user
+// DELETE /:id - Delete list by ID, user
+// GET /:id/items - get items on list by ID
+// POST /:id/items - add items to list, user
+// DELETE /:id/items/:itemId - Delete item from list, user
+// GET /:id/items/check - Check for duplicates, user
 ////////////////////////////////////////////////////////////////////////////
 
 const express = require('express');

@@ -11,5 +11,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "scripts": {
+  "import-data": "node utils/importData.js"
+}
 }

@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////
 // Endpoint routes for labels, some are public and some are only available to admins
-// GET / (public, list all labels)
-// GET /search (public)
-// GET /:id (public, get all artists/albums for a given label ID)
-// GET /:id/artists (public, get artists for given label ID)
-// GET /:id/albums (public, get albums for a given label ID)
-// POST / (create label, admin only)
-// PUT /:id (update label, admin only)
-// DELETE /:id (delete label, admin only)
+// GET / - list all labels, public
+// GET /search - sarch all labels, public
+// GET /:id - get all artists/albums for a given labelId, public
+// GET /:id/artists - get artists for given labeliD, public
+// GET /:id/albums -Get albums for a given label ID, public
+// POST / - create label, admin only
+// PUT /:id - update label, admin
+// DELETE /:id - Delete label, admin 
 ////////////////////////////////////////////////////////////////////////////
 
 const express = require('express');

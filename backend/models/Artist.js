@@ -16,14 +16,9 @@ class Artist {
     const offset = (page - 1) * limit;
     const result = await pool.query(
       `SELECT a.*, 
-      l.name as label_name
-              AVG(r.rating) as avg_rating,
-              COUNT(r.rating) as rating_count
+              l.name as label_name
        FROM artists a
-       LEFT JOIN label l ON a.label_id = l.id
-       LEFT JOIN albums al ON a.id = al.artist_id
-       LEFT JOIN ratings r ON al.id = r.album_id
-       GROUP BY a.id, l.name
+       LEFT JOIN labels l ON a.label_id = l.id
        ORDER BY a.name
        LIMIT $1 OFFSET $2`,
       [limit, offset]
@@ -34,28 +29,23 @@ class Artist {
   static async findById(id) {
     const result = await pool.query(
       `SELECT a.*, 
-      l.name as label_name
-              AVG(r.rating) as avg_rating,
-              COUNT(r.rating) as rating_count
+              l.name as label_name
        FROM artists a
-       LEFT JOIN label l ON a.label_id = l.id
-       LEFT JOIN albums al ON a.id = al.artist_id
-       LEFT JOIN ratings r ON al.id = r.album_id
-       WHERE a.id = $1
-       GROUP BY a.id, l.name`,
+       LEFT JOIN labels l ON a.label_id = l.id
+       WHERE a.id = $1`,
       [id]
     );
     return result.rows[0];
   }
 
   static async update(id, artistData) {
-    const { name, bio, location, formed_year } = artistData;
+    const { name, bio, location, formed_year, label_id } = artistData;
     const result = await pool.query(
       `UPDATE artists 
-       SET name = $1, bio = $2, location = $3, formed_year = $4, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $5
+       SET name = $1, bio = $2, location = $3, formed_year = $4, label_id = $5, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $6
        RETURNING *`,
-      [name, bio, location, formed_year, id]
+      [name, bio, location, formed_year, label_id, id]
     );
     return result.rows[0];
   }
@@ -71,17 +61,39 @@ class Artist {
   static async search(query) {
     const result = await pool.query(
       `SELECT a.*, 
-              AVG(r.rating) as avg_rating,
-              COUNT(r.rating) as rating_count
+              l.name as label_name
        FROM artists a
-       LEFT JOIN albums al ON a.id = al.artist_id
-       LEFT JOIN ratings r ON al.id = r.album_id
+       LEFT JOIN labels l ON a.label_id = l.id
        WHERE a.name ILIKE $1
-       GROUP BY a.id
        ORDER BY a.name`,
       [`%${query}%`]
     );
     return result.rows;
+  }
+  
+  static async findByIdWithAlbums(id) {
+    const result = await pool.query(
+      `SELECT a.*, 
+              l.name as label_name
+       FROM artists a
+       LEFT JOIN labels l ON a.label_id = l.id
+       WHERE a.id = $1`,
+      [id]
+    );
+    
+    const artist = result.rows[0];
+    if (artist) {
+      const albumsResult = await pool.query(
+        `SELECT al.*
+         FROM albums al
+         WHERE al.artist_id = $1
+         ORDER BY al.release_year, al.title`,
+        [id]
+      );
+      artist.albums = albumsResult.rows;
+    }
+    
+    return artist;
   }
 }
 
