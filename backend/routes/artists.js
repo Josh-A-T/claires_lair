@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////
 // Endpoint routes for artists, some are public and some are only available to admins
-// GET / (public)
-// GET /search (public)
-// GET /:id (public)
-// POST / (create artist, admin only)
-// PUT /:id (update artist, admiin only)
-// DELETE /:id (delete artist, admin only)
+// GET / - Get all artists, public
+// GET /search - Search for artist, public
+// GET /:id/with-albums - Get all albums for an artist ID, public
+// GET /:id  - Get specific artist by ID
+// POST /  - Create artist, admin only
+// PUT /:id - Update artist by ID, admiin only
+// DELETE /:id - delete artist by ID, admin only
 ////////////////////////////////////////////////////////////////////////////
 
 const express = require('express');
@@ -17,7 +18,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 1000;
     const artists = await Artist.findAll(page, limit);
     res.json(artists);
   } catch (error) {
@@ -40,6 +41,18 @@ router.get('/search', async (req, res) => {
   }
 });
 
+router.get('/:id/with-albums', async (req, res) => {
+  try {
+    const artist = await Artist.findByIdWithAlbums(req.params.id);
+    if (!artist) {
+      return res.status(404).json({ error: 'Artist not found' });
+    }
+    res.json(artist);
+  } catch (error) {
+    console.error('Get artist with albums error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 router.get('/:id', async (req, res) => {
   try {
     const artist = await Artist.findById(req.params.id);

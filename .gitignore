@@ -4,3 +4,11 @@ backend/utils/DiscogsArchiver.py
 backend/utils/artists.txt
 backend/utils/artists_discography.json
 backend/utils/discogs_artist_search.log
+backend/utils/importData.js
+/backend/utils/artist_images
+backend/utils/list1.json
+backend/utils/list2.json
+/backend/images
+/backend/images
+backend/utils/list5.json
+

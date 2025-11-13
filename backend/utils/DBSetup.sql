@@ -1,12 +1,14 @@
 -- Claries (music) Lair DB Setup
 -- Run this script in PSQL or pgAdmin to create all tables
--- Setup for Users, Labels, Artists, Albums, Artist social media links, Artist Genre, Ratings, user generated Lists, and List items
+-- Setup for Users, Labels, Artists, Albums, Tracks, Artist social media links, Artist Genre, Ratings, user generated Lists, and List items
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     is_admin BOOLEAN DEFAULT FALSE,
+    cover_image VARCHAR(255),
+    thumb_image VARCHAR(255);
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -18,17 +20,22 @@ CREATE TABLE labels (
     founded_year INTEGER,
     country VARCHAR(100),
     website VARCHAR(500),
+    cover_image VARCHAR(255),
+    thumb_image VARCHAR(255);
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE artists (
     id SERIAL PRIMARY KEY,
+    discogs_id INTEGER UNIQUE,
     name VARCHAR(255) NOT NULL,
     bio TEXT,
     location VARCHAR(255),
     formed_year INTEGER,
     label_id INTEGER REFERENCES labels(id),
+    cover_image VARCHAR(255),
+    thumb_image VARCHAR(255);
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -41,7 +48,22 @@ CREATE TABLE albums (
     label VARCHAR(255),
     label_id INTEGER REFERENCES labels(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    release_type VARCHAR(50),
+    cover_image VARCHAR(255),
+    thumb_image VARCHAR(255);
+    discogs_id INTEGER UNIQUE,
+    format VARCHAR(100),
+    style VARCHAR(255),
+);
+
+CREATE TABLE tracks (
+    id SERIAL PRIMARY KEY,
+    album_id INTEGER REFERENCES albums(id),
+    position VARCHAR(10),
+    title VARCHAR(255) NOT NULL,
+    duration VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE artist_links (
@@ -104,5 +126,6 @@ CREATE INDEX idx_lists_share_id ON lists(share_id);
 CREATE INDEX idx_lists_is_public ON lists(is_public);
 CREATE INDEX idx_list_items_list_id ON list_items(list_id);
 CREATE INDEX idx_list_items_type ON list_items(item_type);
+CREATE INDEX idx_tracks_album_id ON tracks(album_id);
 
 SELECT 'Database setup completed successfully!' as message;
