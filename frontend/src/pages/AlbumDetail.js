@@ -119,7 +119,7 @@ const AlbumDetail = () => {
         <div className="album-cover">
           {album.cover_image ? (
             <img 
-              src={`/images/${album.cover_image}`} 
+              src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/images/albums/${album.cover_image}`}
               alt={album.title}
               className="cover-image"
               onError={(e) => {
