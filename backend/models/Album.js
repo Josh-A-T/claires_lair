@@ -14,16 +14,12 @@ class Album {
 
   static async findByArtistId(artistId) {
     const result = await pool.query(
-      `SELECT a.*, 
+      `SELECT al.*, 
               ar.name as artist_name
-              AVG(r.rating) as avg_rating,
-              COUNT(r.rating) as rating_count
-       FROM albums a
-       LEFT JOIN ratings r ON a.id = r.album_id
-       JOIN artists ar ON a.artist_id = ar.id
-       WHERE a.artist_id = $1
-       GROUP BY a.id
-       ORDER BY a.release_year, a.title`,
+       FROM albums al
+       JOIN artists ar ON al.artist_id = ar.id
+       WHERE al.artist_id = $1
+       ORDER BY al.release_year, al.title`,
       [artistId]
     );
     return result.rows;
@@ -31,32 +27,34 @@ class Album {
 
   static async findById(id) {
     const result = await pool.query(
-      `SELECT a.*, 
+      `SELECT al.*, 
               ar.name as artist_name,
-              l.name as label_name,
-              AVG(r.rating) as avg_rating,
-              COUNT(r.rating) as rating_count
-       FROM albums a
-       JOIN artists ar ON a.artist_id = ar.id
-       LEFT JOIN labels l ON a.label_id = l.id
-       WHERE a.id = $1`,
+              l.name as label_name
+       FROM albums al
+       JOIN artists ar ON al.artist_id = ar.id
+       LEFT JOIN labels l ON al.label_id = l.id
+       WHERE al.id = $1`,
       [id]
     );
     return result.rows[0];
   }
+
   static async findAll(page = 1, limit = 20) {
     const offset = (page - 1) * limit;
     const result = await pool.query(
-      `SELECT a.*, 
+      `SELECT al.*, 
+              ar.name as artist_name,
               l.name as label_name
-       FROM albums a
-       LEFT JOIN labels l ON a.label_id = l.id
-       ORDER BY a.name
+       FROM albums al
+       JOIN artists ar ON al.artist_id = ar.id
+       LEFT JOIN labels l ON al.label_id = l.id
+       ORDER BY ar.name, al.release_year
        LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
     return result.rows;
   }
+
   static async update(id, albumData) {
     const { title, release_year, label, label_id } = albumData;
     const result = await pool.query(
@@ -79,51 +77,47 @@ class Album {
 
   static async search(query) {
     const result = await pool.query(
-      `SELECT a.*, 
+      `SELECT al.*, 
               ar.name as artist_name
-              AVG(r.rating) as avg_rating,
-              COUNT(r.rating) as rating_count
-       FROM albums a
-       JOIN artists ar ON a.artist_id = ar.id
-       LEFT JOIN ratings r ON a.id = r.album_id
-       WHERE a.title ILIKE $1 OR ar.name ILIKE $1
-       GROUP BY a.id, ar.name
-       ORDER BY ar.name, a.title`,
+       FROM albums al
+       JOIN artists ar ON al.artist_id = ar.id
+       WHERE al.title ILIKE $1 OR ar.name ILIKE $1
+       ORDER BY ar.name, al.title`,
       [`%${query}%`]
     );
     return result.rows;
   }
 
   static async findByIdWithTracks(id) {
-  const result = await pool.query(
-    `SELECT a.*, 
-            ar.name as artist_name,
-            l.name as label_name
-     FROM albums a
-     JOIN artists ar ON a.artist_id = ar.id
-     LEFT JOIN labels l ON a.label_id = l.id
-     WHERE a.id = $1`,
-    [id]
-  );
-  
-  const album = result.rows[0];
-  if (album) {
-    const tracksResult = await pool.query(
-      `SELECT * FROM tracks 
-       WHERE album_id = $1 
-       ORDER BY 
-         CASE 
-           WHEN position ~ '^[A-Z][0-9]+$' THEN position
-           ELSE 'Z' || position
-         END`,
+    const result = await pool.query(
+      `SELECT al.*, 
+              ar.name as artist_name,
+              l.name as label_name
+       FROM albums al
+       JOIN artists ar ON al.artist_id = ar.id
+       LEFT JOIN labels l ON al.label_id = l.id
+       WHERE al.id = $1`,
       [id]
     );
-    album.tracks = tracksResult.rows;
+    
+    const album = result.rows[0];
+    if (album) {
+      // Get tracks for this album
+      const tracksResult = await pool.query(
+        `SELECT * FROM tracks 
+         WHERE album_id = $1 
+         ORDER BY 
+           CASE 
+             WHEN position ~ '^[A-Z][0-9]+$' THEN position
+             ELSE 'Z' || position
+           END`,
+        [id]
+      );
+      album.tracks = tracksResult.rows;
+    }
+    
+    return album;
   }
-  
-  return album;
-}
-
 }
 
 module.exports = Album;
