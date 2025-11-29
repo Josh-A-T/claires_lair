@@ -9,6 +9,7 @@ const labelRoutes = require('./routes/labels');
 const listRoutes = require('./routes/lists');
 const trackRoutes = require('./routes/tracks')
 const ratingRoutes = require('./routes/ratings');
+const imageRoutes = require('./routes/images')
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/labels', labelRoutes);
 app.use('/api/lists', listRoutes);
 app.use('/api/tracks', trackRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/images', imageRoutes);
 
 // Health check to see if the server is up
 app.get('/api/health', (req, res) => {
